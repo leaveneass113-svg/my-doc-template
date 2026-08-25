@@ -1,0 +1,232 @@
+==================================================================
+ContractScan AI — template1.docx TOKEN SOURCE MAP
+==================================================================
+Generated: 2026-08-24 | Last revised: 2026-08-24
+
+⚠️ READ BEFORE REUSING THIS FILE ANYWHERE (prompt, another AI, another repo):
+Every concrete value shown under "ตัวอย่าง:" below (names, amounts, dates,
+clause numbers) came from ONE reference contract (เลขที่ 30/2569) and is
+NOT a default, NOT a fallback, and NOT something to copy into future
+outputs. It exists only to prove the extraction RULE against a real
+document. When processing any other contract, ignore every example value
+here and apply only the RULE line. If this file is ever pasted into an
+AI prompt, strip the "ตัวอย่าง:" lines first, or make sure the AI is told
+explicitly that they are illustrations, not ground truth.
+The actual Gemini extraction prompt used in production
+(GEMINI_EXTRACTION_PROMPT in contract_mapper.py) already contains ZERO
+example values for exactly this reason — keep it that way.
+
+Template: template1.docx  (122 unique {{TOKEN}} placeholders incl. 1 loop,
+after the 2026-08-24 fixes)
+Reference contract used for source verification:
+  "โครงการก่อสร้างถนนคอนกรีตเสริมเหล็ก บ้านทุ่งขามใต้ หมู่ 9.pdf" (5 pages)
+    หน้า 1 = คำสั่งแต่งตั้งคณะกรรมการตรวจรับพัสดุและผู้ควบคุมงาน
+    หน้า 2-5 = สัญญาจ้างก่อสร้าง เลขที่ 30/2569  <- example contract only
+
+Legend for SOURCE column:
+  [PDF]     -> extracted from the scanned contract via Gemini OCR
+  [COMPUTE] -> calculated by the app, not read from any document
+  [APP]     -> entered by the user in the app UI (per report / per week)
+  [FIXED]   -> constant value, no extraction needed
+  [DEFAULT] -> blank / "-" unless user manually overrides
+==================================================================
+
+
+------------------------------------------------------------------
+GROUP A — Report/document metadata (NOT sourced from contract PDF)
+------------------------------------------------------------------
+DOC_NO      [APP]     เลขที่หนังสือส่งออก (running memo number), กรอก/นับต่อทุกสัปดาห์
+R_DATE      [COMPUTE] วันที่ออกหนังสือ (วันจันทร์ถัดไปหลังสิ้นสุดสัปดาห์รายงาน)
+WEEK        [APP]     รายงานครั้งที่ (นับต่อทุกสัปดาห์)
+START       [APP]     วันเริ่มต้นสัปดาห์ที่รายงาน
+END         [APP]     วันสิ้นสุดสัปดาห์ที่รายงาน
+RPT_MONTH   [APP]     เดือน/ปี ของรายงานประจำเดือน
+
+
+------------------------------------------------------------------
+GROUP B — Project & contract static fields  [PDF]
+------------------------------------------------------------------
+PROJECT
+  RULE: ชื่องานจ้างเต็ม จากข้อ 1 (ข้อตกลงว่าจ้าง) ของสัญญา
+  ตัวอย่าง (สัญญา 30/2569 เท่านั้น — ห้ามใช้เป็นค่า default):
+    "ก่อสร้างถนนคอนกรีตเสริมเหล็กซอยสวนนายกมล คำนวณ ถึงบ้านฝรั่ง
+     บ้านทุ่งขามใต้ หมู่ที่ ๙ ตำบลใหม่พัฒนา อำเภอเกาะคา จังหวัดลำปาง"
+
+LOCATION
+  RULE: สถานที่ก่อสร้าง จากข้อ 1 เดียวกัน
+  ตัวอย่าง: "ณ บ้านทุ่งขามใต้ หมู่ที่ ๙ ตำบล/แขวง ใหม่พัฒนา อำเภอ/เขต เกาะคา
+             จังหวัด ลำปาง"
+
+QTY
+  RULE: ขนาด/ปริมาณงาน จากข้อ 1 — ตัดข้อความก่อนคำว่า "รายละเอียดตามแบบแปลนของ
+        อบต..." ออกเสมอ (ประโยคนี้ hardcode อยู่ในเทมเพลตแล้ว ห้ามซ้ำ)
+  ตัวอย่าง: "ขนาดกว้าง ๓.๐๐ เมตร ยาว ๑๕๐.๐๐ เมตร หนา ๐.๑๕ เมตร หรือมีพื้นที่
+             ไม่น้อยกว่า ๔๕๐.๐๐ ตารางเมตร พร้อมถมไหล่ทางข้างละ ๐.๒๐ เมตร"
+
+C_NO      RULE: เลขที่สัญญา จากหน้า 2      | ตัวอย่าง: "๓๐/๒๕๖๙"
+C_DATE    RULE: วันที่ทำสัญญา จากหน้า 2     | ตัวอย่าง: "๒๙ มิถุนายน ๒๕๖๙"
+
+WS_DATE
+  RULE: วันเริ่มงานตามสัญญา จากข้อกำหนดเวลาแล้วเสร็จ (โดยทั่วไปอยู่ข้อ 7)
+  ตัวอย่าง: "ต้องเริ่มทำงานที่รับจ้างภายในวันที่ ๓๐ มิถุนายน ๒๕๖๙"
+
+C_END
+  RULE: วันแล้วเสร็จตามสัญญา จากข้อกำหนดเวลาแล้วเสร็จเดียวกัน
+  ตัวอย่าง: "แล้วเสร็จบริบูรณ์ภายในวันที่ ๒๘ สิงหาคม ๒๕๖๙"
+  ** RULE (สำคัญ, ใช้ได้ทุกสัญญา): ถ้าวันที่นี้ปรากฏหลายตำแหน่งในเอกสารและ
+     ปี พ.ศ. ไม่ตรงกันข้ามหน้า (OCR error) ให้ cross-check และเลือกค่าที่
+     สอดคล้องกับ WS_DATE/บริบทมากที่สุด — ในสัญญาอ้างอิงพบ OCR พิมพ์ผิดที่
+     หน้า 3 เป็น "๒๕๑๙" ขณะที่หน้า 4 ถูกต้องเป็น "๒๕๖๙" (สัญญาจริงถูกทั้งคู่
+     เป็น ๒๕๖๙ ปัญหาอยู่ที่ OCR เท่านั้น)
+
+DAYS      RULE (ใช้ได้ทุกสัญญา): [COMPUTE] เสมอ = C_END − WS_DATE
+          ห้ามอ่านจากตัวเลขจำนวนวันที่ระบุตรงๆ ในสัญญา แม้จะมีระบุก็ตาม
+
+COST      RULE: ราคาค่าจ้างตามสัญญา จากข้อค่าจ้างและการจ่ายเงิน (ทั่วไปข้อ 4)
+          ตัวอย่าง: ๒๗๗,000.00 บาท
+
+BUDGET    RULE (ใช้ได้ทุกสัญญา): ใช้ตัวเลขเดียวกับ COST เสมอ
+          ** ห้ามใช้ตัวเลขงบประมาณจากคำสั่งแต่งตั้งฯ (หน้า 1) แม้จะต่างจาก
+             COST ก็ตาม — ตัวอย่าง: สัญญาอ้างอิงมีเลข ๒๗๘,๗๐๐ บาท ในคำสั่ง
+             แต่งตั้งฯ ซึ่ง "ไม่ใช้" เป็น BUDGET, ใช้ ๒๗๗,000.00 (=COST) แทน
+
+FINE      RULE: ค่าปรับรายวัน จากข้อค่าปรับ (ทั่วไปข้อ 17) — เอาเฉพาะอัตรา
+          ค่าปรับหลัก ไม่รวมค่าใช้จ่ายควบคุมงานเพิ่มเติมที่อาจอยู่ข้อเดียวกัน
+          ตัวอย่าง: ๖๙๓.๐๐ บาท/วัน (ไม่ใช่ ๑๕๐ บาท/วัน ซึ่งเป็นค่าควบคุมงาน)
+
+CONTRACTOR  RULE: ชื่อผู้รับจ้าง จากหน้า 2
+            ตัวอย่าง: "ห้างหุ้นส่วนจำกัด ชัยยุทธ ธุรกิจการโยธา"
+
+CTR_ADDR    RULE: ที่อยู่สำนักงานใหญ่ผู้รับจ้าง จากหน้า 2
+            ตัวอย่าง: "บ้านปงยางคก เลขที่ ๕๒/๑ หมู่ ๙ ตำบล/แขวง ปงยางคก
+                       อำเภอ/เขต ห้างฉัตร จังหวัด ลำปาง"
+
+INSTALL_N   RULE (ใช้ได้ทุกสัญญา): [FIXED] default = 1 เว้นแต่สัญญาระบุ
+            "งวดที่ N" มากกว่า 1 งวดในข้อค่าจ้างและการจ่ายเงิน
+            ตัวอย่าง: สัญญาอ้างอิงมีงวดเดียว ("งวดที่ ๑") → INSTALL_N = 1
+
+EXT_DATE, EXT_DAYS
+  RULE (ใช้ได้ทุกสัญญา): [DEFAULT] ว่าง/"-" เสมอ เว้นแต่ผู้ใช้กรอกเองภายหลัง
+  เมื่อมีการต่อสัญญาจริง — สัญญาต้นฉบับไม่เคยมีข้อมูลต่อสัญญาอยู่แล้ว
+
+REMAIN      [COMPUTE] เสมอ = C_END − วันที่ปัจจุบัน (คำนวณตอนสร้างรายงาน
+            ไม่ใช่ตอนสแกนสัญญา เพราะขึ้นกับ "วันนี้")
+
+COST_TEXT   [COMPUTE] เสมอ = bahttext(COST) — ไม่ได้อ่านจาก PDF
+FINE_TEXT   [COMPUTE] เสมอ = bahttext(FINE) — ไม่ได้อ่านจาก PDF
+
+
+------------------------------------------------------------------
+GROUP C — Committee / supervisor / representative  [PDF หน้า 1]
+------------------------------------------------------------------
+RULE (ใช้ได้ทุกสัญญา): ที่มาทั้งหมดในกลุ่มนี้อยู่ที่ "คำสั่งแต่งตั้งคณะ
+กรรมการตรวจรับพัสดุและผู้ควบคุมงาน" ซึ่งเป็นเอกสารแนบหน้า 1 (ถ้ามี)
+
+SUP_NAME / SUP_POS       RULE: ชื่อ/ตำแหน่งผู้ควบคุมงาน
+  ตัวอย่าง: "นายธนิส บุญเป็ง" / "นายช่างโยธาอาวุโส"
+
+COM_P_NAME / COM_P_POS   RULE: ชื่อ/ตำแหน่งประธานกรรมการตรวจรับพัสดุ
+  ตัวอย่าง: "นายมนตรี ฟูคำ" / "ผู้อำนวยการกองช่าง"
+
+COM_1_NAME / COM_1_POS   RULE: ชื่อ/ตำแหน่งกรรมการคนที่ 1
+  ตัวอย่าง: "นางสาวธัญญารัตน์ กันทาสุข" / "นักวิชาการเงินและบัญชีชำนาญการ"
+
+COM_2_NAME / COM_2_POS   RULE: ชื่อ/ตำแหน่งกรรมการคนที่ 2
+  ตัวอย่าง: "นายศราวุฒิ ทรายใจ" / "นักวิชาการศึกษาชำนาญการ"
+
+REP_1
+  RULE (ใช้ได้ทุกสัญญา): ชื่อบุคคลที่ปรากฏหลังคำว่า "โดย" ท้ายที่อยู่ผู้รับจ้าง
+  ในหน้า 2 ของสัญญา (คือผู้มีอำนาจลงนามผูกพันนิติบุคคลฝ่ายผู้รับจ้าง — label
+  ในเทมเพลตแก้เป็น "ผู้แทนผู้รับจ้าง" แล้วให้ตรงความหมาย)
+  ตัวอย่าง: "นายพรหมมินทร์ ปะระมา"
+
+REP_2
+  RULE (ใช้ได้ทุกสัญญา): [DEFAULT] ว่างเสมอถ้าสัญญามีผู้ลงนามคนเดียว
+  (กรณีทั่วไป) — กรอกเฉพาะเมื่อสัญญาระบุผู้ลงนามฝ่ายผู้รับจ้างมากกว่า 1 คน
+
+
+------------------------------------------------------------------
+GROUP D — Weekly work-item row (single row, NOT a loop)  [APP/COMPUTE]
+------------------------------------------------------------------
+WN, WD          [APP]     ที่ / งานที่ดำเนินการ — กรอกโดยผู้ใช้
+WW              [APP]     ผลงานในสัปดาห์% (input หลัก)
+WP              [APP]     ผลงานสะสมถึงสัปดาห์ก่อน (= WR ของรายงานสัปดาห์ก่อนหน้า)
+WT              [COMPUTE] = WW
+WC              [COMPUTE] = WP + WT
+WR              [COMPUTE] = WC
+CP              [COMPUTE] = WC  (ค่าที่ป้อนกลับไปช่อง "%ผลงาน ปัจจุบัน" ในตารางสรุป
+                            ด้านบนของหน้ารายงาน — ไม่ใช่ช่องกรอกแยก ยืนยันแล้ว 2026-08-24)
+                            ดู progress_calc.js -> calculateWeeklyProgress()
+ไม่มีข้อมูลกลุ่มนี้ในสัญญา
+
+
+------------------------------------------------------------------
+GROUP E — Daily site log + weather (7 fixed days)  [APP]
+------------------------------------------------------------------
+D1..D7            วัน/เดือน/ปี ของแต่ละวันในสัปดาห์
+DAY_DESC_1..7     รายละเอียดงานที่ทำในวันนั้น
+W_A1..7           สภาพอากาศช่วงเช้า
+W_P1..7           สภาพอากาศช่วงบ่าย
+  -> กรอกโดยผู้ใช้ทุกวัน ไม่มีในสัญญา
+
+
+------------------------------------------------------------------
+GROUP F — Labor / equipment table (loop)  [APP]
+------------------------------------------------------------------
+SD1..SD7                  หัวตาราง = วันที่ของแต่ละวันในสัปดาห์ (mirror ของ D1-D7)
+LABOR_TOTAL_1..7          ผลรวมแรงงาน/เครื่องจักรต่อวัน (คำนวณจาก loop)
+
+Loop: {{#laborRows}} ... {{/laborRows}}   (แก้ delimiter เรียบร้อยแล้ว 2026-08-24)
+  ภายใน loop:
+    {category}  ประเภทแรงงาน/เครื่องจักร   [APP]
+    {d1}..{d7}  จำนวนต่อวัน                [APP]
+  -> กรอกโดยผู้ใช้ทุกสัปดาห์ ไม่มีในสัญญา
+
+
+------------------------------------------------------------------
+GROUP G — Monthly rollup section (up to 3 fixed line-item rows, NOT a loop)
+          [COMPUTE/APP]  -- corrected 2026-08-24, was MW/MP/MM/MC/MR shared
+          across all 3 rows before (bug); now each row has its own set.
+------------------------------------------------------------------
+Per row i (i = 1..3):
+  MNi         [APP]     ที่ (ลำดับรายการ)
+  MO_LABELi   [APP]     หัวข้องานที่ดำเนินการ
+  MO_DESCi    [APP]     รายละเอียดงาน
+  MWi         [APP]     สัดส่วนของงาน% ของรายการนี้
+  MPi         [APP]     ผลงาน% ถึงเดือนก่อน (= MCi ของรายงานเดือนก่อนหน้า)
+  MMi         [APP]     ผลงาน% ในเดือนนี้ (input หลัก)
+  MCi         [COMPUTE] = MPi + MMi
+  MRi         [COMPUTE] = MWi * MCi / 100  (ถ่วงน้ำหนักด้วยสัดส่วนงาน)
+
+Totals:
+  MW_SUM      [COMPUTE] = sum(MWi)   ผลรวมสัดส่วนงานทั้งหมด (ควร = 100)
+  MT          [COMPUTE] = sum(MRi)   ผลงานรวม% สะสมทุกรายการ
+  MCP         [COMPUTE] = MT         ค่าป้อนกลับไปช่อง "%ผลงาน ปัจจุบัน" ในตาราง
+                          สรุปด้านบนของรายงานประจำเดือน (ทำนองเดียวกับ CP)
+
+ดู progress_calc.js -> calculateMonthlyProgress()
+ไม่มีข้อมูลกลุ่มนี้ในสัญญา — เป็นข้อมูลที่กรอก/คำนวณจากประวัติรายสัปดาห์
+ที่บันทึกไว้ในเดือนนั้น
+
+
+==================================================================
+OPEN ITEMS FOR IMPLEMENTATION PHASE (not data-sourcing questions)
+==================================================================
+DONE (fixed in template1.docx, verified 2026-08-24):
+  1. Loop delimiter: {#laborRows}...{/laborRows} -> {{#laborRows}}...{{/laborRows}}  [FIXED]
+  2. Missing brace: ({COST_TEXT}}) -> ({{COST_TEXT}})                                [FIXED]
+  3. Header prefix inconsistency (ลป.๗๙๖๐๓/{{DOC_NO}}) between weekly/monthly
+     sections                                                                        [FIXED]
+  4. Monthly rollup token bug (MW/MP/MM/MC/MR shared across all 3 rows) ->
+     per-row MWi/MPi/MMi/MCi/MRi + MW_SUM                                            [FIXED]
+  5. Label corrected: "ผู้แทนผู้ว่าจ้าง" -> "ผู้แทนผู้รับจ้าง" (matches REP_1/REP_2)   [FIXED]
+  6. CP / MCP derivation logic confirmed and implemented in progress_calc.js         [DONE]
+
+STILL OPEN:
+  7. template1.docx on disk is still a plain-text file saved with a .docx
+     extension (no ZIP/PK header) — not yet a real Word binary. Need the
+     actual binary uploaded via drag-and-drop before real .docx generation
+     can be tested end-to-end with docxtemplater/PizZip.
+  8. contract_mapper.py (Group B/C, contract-sourced fields) still needs to
+     be wired into server.py as a callable endpoint.
+==================================================================
